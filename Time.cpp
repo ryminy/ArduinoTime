@@ -3,67 +3,102 @@
 
 #include "Time.h"
 
-timeFormat time = {0,0,0};
-
-void update_time()
+timeFormat::timeFormat(unsigned short hour, unsigned short min, unsigned short sec)
 {
-  if (time.second >= 60)
+  this->second = sec;
+  this->minute = min;
+  this->hour = hour;  
+}
+
+timeFormat::timeFormat()
+{
+  this->second = 0;
+  this->minute = 0;
+  this->hour = 0;
+}
+
+timeFormat::~timeFormat()
+{
+  this->second = 0;
+  this->minute = 0;
+  this->hour = 0;  
+}
+
+void timeFormat::init()
+{
+  // initialize timer1 
+  TCCR1A = 0;
+  TCCR1B = 0;
+  TCNT1  = 0;
+
+  OCR1A = 62500;            // compare match register 16MHz/256/1Hz
+  TCCR1B |= (1 << WGM12);   // CTC mode
+  TCCR1B |= (1 << CS12);    // 1024 prescaler 
+  TIMSK1 |= (1 << OCIE1A);  // enable timer compare interrupt 
+}
+
+void timeFormat::updateTime()
+{
+  if (this->second >= 60)
   {
-    time.minute++;
-    time.second = 0;
+    this->minute++;
+    this->second = 0;
   }
 
-  if (time.minute >= 60)
+  if (this->minute >= 60)
   {
-    time.hour++;
-    time.minute = 0;
+    this->hour++;
+    this->minute = 0;
   }
 
-  if (time.hour >= 24)
+  if (this->hour >= 24)
   {
-    time.hour = 0;
+    this->hour = 0;
   }  
 }
 
-void setTime(timeFormat inputTime)
+void timeFormat::setTime(timeFormat inputTime)
 {
-  time.hour = inputTime.hour;
-  time.minute = inputTime.minute;
-  time.second = inputTime.second;   
+  this->hour = inputTime.hour;
+  this->minute = inputTime.minute;
+  this->second = inputTime.second;    
 }
 
-void printTime()
+void timeFormat::printTime()
 {
   char buff[9];
-  sprintf(buff,"%02d:%02d:%02d\n", time.hour, time.minute, time.second);
-  Serial.print(buff);
+  sprintf(buff,"%02d:%02d:%02d\n", this->hour, this->minute, this->second);
+  Serial.print(buff);  
 }
 
-bool compareTime(timeFormat userTime)
+bool timeFormat::compareTime(timeFormat userTime)
 {
-  if ((userTime.hour == time.hour) && (userTime.minute == time.minute) && (userTime.second == time.second))
+  if ((userTime.hour == this->hour) && (userTime.minute == this->minute) && (userTime.second == this->second))
     return true;
 
-  return false;
+  return false;  
 }
 
-unsigned short getSecond()
+unsigned short timeFormat::getSecond()
 {
-  return time.second;
+  return this->second;  
 }
 
-unsigned short getMinute()
+unsigned short timeFormat::getMinute()
 {
-  return time.minute;
+  return this->minute;  
 }
 
-unsigned short getHour()
+unsigned short timeFormat::getHour()
 {
-  return time.hour;
+  return this->hour;  
 }
 
-void incrementSecond()
+void timeFormat::incrementSecond()
 {
-  time.second ++;
+  this->second ++;  
 }
+
+
+
 
